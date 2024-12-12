@@ -51,8 +51,7 @@ app.get('/queue', async (req, res) => {
 
 
 
-// Ruta para reanudar la canción
-app.post('/play', async (req, res) => {
+app.get('/play', async (req, res) => {
   try {
     const response = await axios.post(
       'https://api.nightbot.tv/1/song_requests/queue/play',
@@ -63,15 +62,14 @@ app.post('/play', async (req, res) => {
         },
       }
     );
-    res.status(200).json(response.data); // Respuesta completa de la API
+    res.status(200).send('La canción ha sido reanudada.');
   } catch (error) {
     console.error('Error al intentar reanudar la canción:', error.response?.data || error.message);
     res.status(500).send('Hubo un problema al intentar reanudar la canción.');
   }
 });
 
-// Ruta para pausar la canción
-app.post('/pause', async (req, res) => {
+app.get('/pause', async (req, res) => {
   try {
     const response = await axios.post(
       'https://api.nightbot.tv/1/song_requests/queue/pause',
@@ -82,12 +80,13 @@ app.post('/pause', async (req, res) => {
         },
       }
     );
-    res.status(200).json(response.data); // Respuesta completa de la API
+    res.status(200).send('La canción ha sido pausada.');
   } catch (error) {
     console.error('Error al intentar pausar la canción:', error.response?.data || error.message);
     res.status(500).send('Hubo un problema al intentar pausar la canción.');
   }
 });
+
 
 // Ruta para verificar el estado de la API
 app.get('/status', (req, res) => {
