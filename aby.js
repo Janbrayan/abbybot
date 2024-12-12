@@ -31,16 +31,24 @@ app.get('/queue', async (req, res) => {
       },
     });
 
-    // Extraer el título de la canción actual
+    // Extraer los detalles de la canción actual
     const currentSong = response.data._currentSong;
-    const songTitle = currentSong?.track?.title || 'No hay canción en reproducción';
+    if (currentSong) {
+      const songTitle = currentSong.track.title || 'Sin título';
+      const artistName = currentSong.track.artist || 'Artista desconocido';
 
-    res.status(200).send(songTitle); // Enviar solo el título
+      // Crear un mensaje con el título y el artista
+      const message = `La canción es "${songTitle}" - ${artistName}`;
+      res.status(200).send(message); // Enviar el mensaje
+    } else {
+      res.status(200).send('No hay canción en reproducción.'); // Si no hay canción
+    }
   } catch (error) {
     console.error('Error al obtener la cola:', error.response?.data || error.message);
     res.status(500).send('Hubo un problema al intentar obtener la cola de canciones.');
   }
 });
+
 
 
 // Ruta para reanudar la canción
