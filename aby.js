@@ -30,12 +30,18 @@ app.get('/queue', async (req, res) => {
         Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
       },
     });
-    res.status(200).json(response.data); // Devuelve la cola completa como JSON
+
+    // Extraer el título de la canción actual
+    const currentSong = response.data._currentSong;
+    const songTitle = currentSong?.track?.title || 'No hay canción en reproducción';
+
+    res.status(200).send(songTitle); // Enviar solo el título
   } catch (error) {
     console.error('Error al obtener la cola:', error.response?.data || error.message);
     res.status(500).send('Hubo un problema al intentar obtener la cola de canciones.');
   }
 });
+
 
 // Ruta para reanudar la canción
 app.post('/play', async (req, res) => {
