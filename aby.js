@@ -49,8 +49,7 @@ app.get('/queue', async (req, res) => {
   }
 });
 
-
-
+// Ruta para reanudar la canción
 app.get('/play', async (req, res) => {
   try {
     const response = await axios.post(
@@ -69,6 +68,7 @@ app.get('/play', async (req, res) => {
   }
 });
 
+// Ruta para pausar la canción
 app.get('/pause', async (req, res) => {
   try {
     const response = await axios.post(
@@ -87,6 +87,48 @@ app.get('/pause', async (req, res) => {
   }
 });
 
+// Ruta para eliminar una canción por posición
+app.delete('/remove/:position', async (req, res) => {
+  try {
+    const position = parseInt(req.params.position, 10);
+
+    // Validar la posición
+    if (isNaN(position) || position < 1) {
+      return res.status(400).send('La posición debe ser un número mayor o igual a 1.');
+    }
+
+    // Obtener la cola de canciones
+    const queueResponse = await axios.get('https://api.nightbot.tv/1/song_requests/queue', {
+      headers: {
+        Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
+      },
+    });
+
+    const queue = queueResponse.data.queue;
+
+    // Verificar si la posición es válida
+    if (position > queue.length) {
+      return res.status(400).send('La posición excede el número de canciones en la cola.');
+    }
+
+    // Obtener el ID y el título de la canción en la posición
+    const song = queue[position - 1];
+    const songId = song._id;
+    const songTitle = song.track.title;
+
+    // Eliminar la canción por ID
+    await axios.delete(`https://api.nightbot.tv/1/song_requests/queue/${songId}`, {
+      headers: {
+        Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
+      },
+    });
+
+    res.status(200).send(`La canción "${songTitle}" en la posición ${position} ha sido eliminada.`);
+  } catch (error) {
+    console.error('Error al intentar eliminar la canción:', error.response?.data || error.message);
+    res.status(500).send('Hubo un problema al intentar eliminar la canción.');
+  }
+});
 
 // Ruta para verificar el estado de la API
 app.get('/status', (req, res) => {
